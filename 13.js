@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const input = fs.readFileSync('13.txt', 'utf8');
+const input = fs.readFileSync('sample.txt', 'utf8');
 
 const parseInput = (rawInput) => {
     return rawInput.split("\n\n").map((e) => e.split("\n"));
@@ -19,6 +19,9 @@ function solution(rows, diffPossible) {
             let diffCount = 0;
             for (let x = Math.min(i * 2 + 1, lenRow - 1); x > i; x--) {
                 for (let j = 0; j < lenCol; j++) {
+                    if (i === 0) {
+                        console.log(row[2 * i + 1 - x][j], row[x][j], j, x)
+                    }
                     if (row[2 * i + 1 - x][j] !== row[x][j]) {
                         diffCount++;
                     }
@@ -72,4 +75,4 @@ const part2 = (rawInput) => {
 };
 
 
-console.log(part2(input))
+console.log(part1(input))
