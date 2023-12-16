@@ -27,83 +27,88 @@ func main() {
 	}
 
 	// direction, i, j, cache
-	cache := make(map[string]int)
-	findPaths(arr, "L", 0, 0, cache)
-	log.Println("CACHE :: ", len(cache))
+	cache := make(map[string]bool)
+	ans := make(map[string]bool)
+	findPaths(arr, "L", 0, 0, cache, ans)
+	//	for key, value := range cache {
+	//		log.Println("KEY :: ", key, " VALUE :: ", value)
+	//	}
+	log.Println("CACHE :: ", len(ans))
 }
 
-func findPaths(arr [][]string, dir string, i, j int, cache map[string]int) {
-	if i >= len(arr) || i < 0 {
-		return
-	}
-	if j >= len(arr[0]) || j < 0 {
+func findPaths(arr [][]string, dir string, i, j int, cache, ans map[string]bool) {
+	if cache[fmt.Sprintf("%d-%d-%s", i, j, dir)] {
 		return
 	}
 
-	if cache[fmt.Sprintf("%d-%d", i, j)] == 2000 {
-		return
+	cache[fmt.Sprintf("%d-%d-%s", i, j, dir)] = true
+	ans[fmt.Sprintf("%d-%d", i, j)] = true
+
+	nextDir := findNextDir(arr[i][j], dir)
+
+	for _, nDir := range nextDir {
+		x, y := moves(i, j, nDir)
+
+		if x >= len(arr) || x < 0 {
+			return
+		}
+		if y >= len(arr[0]) || y < 0 {
+			return
+		}
+
+		findPaths(arr, nDir, x, y, cache, ans)
 	}
 
-	cache[fmt.Sprintf("%d-%d", i, j)]++
+	return
+}
 
-	//	log.Println("i :: ", i, " j ::", j, " dir::", dir, " cache::", cache)
+func findNextDir(curr string, dir string) []string {
+	points := map[string]map[string][]string{
+		".": {
+			"R": []string{"R"},
+			"L": []string{"L"},
+			"U": []string{"U"},
+			"D": []string{"D"},
+		},
+		"|": {
+			"R": []string{"U", "D"},
+			"L": []string{"U", "D"},
+			"U": []string{"U"},
+			"D": []string{"D"},
+		},
+		"-": {
+			"R": []string{"R"},
+			"L": []string{"L"},
+			"U": []string{"R", "L"},
+			"D": []string{"R", "L"},
+		},
+		"/": {
+			"R": []string{"U"},
+			"L": []string{"D"},
+			"U": []string{"R"},
+			"D": []string{"L"},
+		},
+		"\\": {
+			"R": []string{"D"},
+			"L": []string{"U"},
+			"U": []string{"L"},
+			"D": []string{"R"},
+		},
+	}
 
-	switch dir {
-	case "L":
-		switch arr[i][j] {
-		case ".":
-			findPaths(arr, dir, i, j+1, cache)
-		case "-":
-			findPaths(arr, dir, i, j+1, cache)
-		case "\\":
-			findPaths(arr, "U", i+1, j, cache)
-		case "/":
-			findPaths(arr, "D", i-1, j, cache)
-		case "|":
-			findPaths(arr, "D", i-1, j, cache)
-			findPaths(arr, "U", i+1, j, cache)
-		}
-	case "R":
-		switch arr[i][j] {
-		case ".":
-			findPaths(arr, dir, i, j-1, cache)
-		case "-":
-			findPaths(arr, dir, i, j-1, cache)
-		case "\\":
-			findPaths(arr, "D", i-1, j, cache)
-		case "/":
-			findPaths(arr, "U", i+1, j, cache)
-		case "|":
-			findPaths(arr, "D", i-1, j, cache)
-			findPaths(arr, "U", i+1, j, cache)
-		}
-	case "D":
-		switch arr[i][j] {
-		case ".":
-			findPaths(arr, dir, i-1, j, cache)
-		case "|":
-			findPaths(arr, dir, i-1, j, cache)
-		case "\\":
-			findPaths(arr, "R", i, j-1, cache)
-		case "/":
-			findPaths(arr, "L", i, j+1, cache)
-		case "-":
-			findPaths(arr, "R", i, j-1, cache)
-			findPaths(arr, "L", i, j+1, cache)
-		}
-	case "U":
-		switch arr[i][j] {
-		case ".":
-			findPaths(arr, dir, i+1, j, cache)
-		case "|":
-			findPaths(arr, dir, i+1, j, cache)
-		case "\\":
-			findPaths(arr, "L", i, j+1, cache)
-		case "/":
-			findPaths(arr, "R", i, j-1, cache)
-		case "-":
-			findPaths(arr, "L", i, j+1, cache)
-			findPaths(arr, "R", i, j-1, cache)
-		}
+	return points[curr][dir]
+}
+
+func moves(i, j int, dir string) (int, int) {
+	if dir == "R" {
+		return i, j - 1
+	} else if dir == "L" {
+		return i, j + 1
+	} else if dir == "U" {
+		return i + 1, j
+	} else if dir == "D" {
+		return i - 1, j
+	} else {
+		return -1, -1
 	}
 }
